@@ -4,18 +4,19 @@ module Redminer
     attr_accessor :verbose, :reqtrace
 
     def initialize(host, access_key, options = {})
+
       #options = {:port => 80}.merge(options)
       #@http = Net::HTTP.new(host, options[:port])
       uri = URI.parse(host)
       @http = Net::HTTP.new(uri.host, uri.port)
       @http.use_ssl = true  if uri.scheme == 'https'
+
       @access_key = access_key
       @verbose = options[:verbose]
       @reqtrace = options[:reqtrace]
     end
 
     def request(path, params = nil, obj = Net::HTTP::Get)
-
       puts "requesting... #{http.address}:#{http.port}#{path} by #{obj}" if verbose
       puts caller.join("\n  ") if reqtrace
       req = obj.new(path)

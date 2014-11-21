@@ -5,11 +5,9 @@ module Redminer
 
     def initialize(host, access_key, options = {})
 
-      #options = {:port => 80}.merge(options)
-      #@http = Net::HTTP.new(host, options[:port])
-      uri = URI.parse(host)
-      @http = Net::HTTP.new(uri.host, uri.port)
-      @http.use_ssl = true  if uri.scheme == 'https'
+      @uri = URI.parse(host)
+      @http = Net::HTTP.new(@uri.host, @uri.port)
+      @http.use_ssl = true  if @uri.scheme == 'https'
 
       @access_key = access_key
       @verbose = options[:verbose]
@@ -17,21 +15,11 @@ module Redminer
     end
 
     def request(path, params = nil, obj = Net::HTTP::Get)
-      puts "params"
-      puts params.inspect
       puts "requesting... #{http.address}:#{http.port}#{path} by #{obj}" if verbose
       puts caller.join("\n  ") if reqtrace
       req = obj.new(path)
       req.add_field('X-Redmine-API-Key', access_key)
-      #req.body = hash_to_querystring(params) if not params.nil? and not params.empty?
-      if not params.nil? and not params.empty?
-        uri = Addressable::URI.new
-        uri.query_values = params
-        puts uri.query
-      end
-      req.body = URI.encode_www_form(params) if not params.nil? and not params.empty?
-      puts "req.body"
-      puts req.body
+      req.body = hash_to_querystring(params) if not params.nil? and not params.empty?
       begin
         if block_given?
           yield http.request(req)
@@ -62,9 +50,13 @@ module Redminer
     end
 
     def get(path, params = nil, &block); request(path, params, &block) end
-    def put(path, params = nil, &block); request(path, params, Net::HTTP::Put, &block) end
     def post(path, params = nil, &block); request(path, params, Net::HTTP::Post, &block) end
     def delete(path, params = nil, &block); request(path, params, Net::HTTP::Delete, &block) end
+    def put(path, params = nil, &block)
+      url = URI::join(@uri.to_s, path)
+      params = params.merge(:key => @access_key)
+      RestClient.put url.to_s, params.to_json, :content_type => :json, :accept => :json
+    end
 
     def current_user
       Redminer::User.current(self)

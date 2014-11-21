@@ -32,18 +32,18 @@ module Redminer
     end
 
     def update(note = nil)
-      params = to_hash(note) unless note.nil?
+      issue_params = to_hash.merge(:notes => note) unless note.nil?
+      params = { :issue => issue_params }
       server.put("/issues/#{id}.json", params)
     end
 
     private
-      def to_hash(note)
-        issue: {
-            subject: @subject,
-            description: @description,
-            project: @project,
-            note: note
-          }
+      def to_hash
+        {
+          :subject => @subject,
+          :description => @description,
+          :project => @project
+        }
       end
   end
 end

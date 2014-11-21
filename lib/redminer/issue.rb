@@ -38,13 +38,12 @@ module Redminer
 
     private
       def to_hash(note)
-        {issue: {
+        issue: {
             subject: @subject,
             description: @description,
             project: @project,
             note: note
           }
-        }
       end
   end
 end

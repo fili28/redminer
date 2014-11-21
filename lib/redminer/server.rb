@@ -17,11 +17,21 @@ module Redminer
     end
 
     def request(path, params = nil, obj = Net::HTTP::Get)
+      puts "params"
+      puts params.inspect
       puts "requesting... #{http.address}:#{http.port}#{path} by #{obj}" if verbose
       puts caller.join("\n  ") if reqtrace
       req = obj.new(path)
       req.add_field('X-Redmine-API-Key', access_key)
-      req.body = hash_to_querystring(params) if not params.nil? and not params.empty?
+      #req.body = hash_to_querystring(params) if not params.nil? and not params.empty?
+      if not params.nil? and not params.empty?
+        uri = Addressable::URI.new
+        uri.query_values = params
+        puts uri.query
+      end
+      req.body = URI.encode_www_form(params) if not params.nil? and not params.empty?
+      puts "req.body"
+      puts req.body
       begin
         if block_given?
           yield http.request(req)

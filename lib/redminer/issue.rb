@@ -43,11 +43,7 @@ module Redminer
         params[:issue][:description] = @description
         params[:issue][:project] = @project
         params[:issue][:notes] = note unless note.nil?
-        #{
-        #  :subject => @subject,
-        #  :description => @description,
-        #  :project => @project
-        #}
+
         params
       end
   end

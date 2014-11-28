@@ -31,20 +31,17 @@ module Redminer
       server.post("/issues.json", to_hash)
     end
 
-    def update(note = nil)
-      server.put("/issues/#{id}.json", to_hash(note))
+    def update(params = nil)
+      server.put("/issues/#{id}.json", to_hash(params))
     end
 
     private
-      def to_hash(note = nil)
+      def to_hash(params = nil)
+        params.nil? ? default_params : default_params.deep_merge(params)
+      end
 
-        params = Hash.new {|h,k| h[k] = Hash.new(&h.default_proc) }
-        params[:issue][:subject] = @subject
-        params[:issue][:description] = @description
-        params[:issue][:project] = @project
-        params[:issue][:notes] = note unless note.nil?
-
-        params
+      def default_params
+        { issue: { subject: @subject, description: @description, project: @project } }
       end
   end
 end

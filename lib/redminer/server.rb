@@ -1,6 +1,6 @@
 module Redminer
   class Server
-    attr_accessor :http, :access_key
+    attr_accessor :http, :access_key, :uri
     attr_accessor :verbose, :reqtrace
 
     def initialize(host, access_key, options = {})
@@ -16,6 +16,7 @@ module Redminer
 
     def request(path, params = nil, obj = Net::HTTP::Get)
       puts "requesting... #{http.address}:#{http.port}#{path} by #{obj}" if verbose
+      Rails.logger.info("requesting... #{http.address}:#{http.port}#{path} by #{obj}")
       puts caller.join("\n  ") if reqtrace
       req = obj.new(path)
       req.add_field('X-Redmine-API-Key', access_key)
@@ -32,7 +33,7 @@ module Redminer
           JSON.parse(response.body)
         end
       rescue Timeout::Error => e
-        raise e, "#{host}:#{port} timeout error", e.backtrace
+        raise e, "#{http.address}:#{port} timeout error", e.backtrace
       rescue JSON::ParserError => e
         raise e, "response json parsing error", e.backtrace
       end

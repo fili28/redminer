@@ -9,10 +9,10 @@ module Redminer
     end
 
     def upload
-      upload_url = URI::join(uri.to_s, "/uploads.json")
-      upload_url_with_key = "#{up_url.to_s}?key=#{server.access_key}"
+      upload_url = URI::join(server.uri.to_s, "/uploads.json")
+      upload_url_with_key = "#{upload_url.to_s}?key=#{server.access_key}"
       
-      RestClient.post(upload_url, file, { :multipart => true, :content_type => 'application/octet-stream'}) 
+      RestClient.post(upload_url_with_key, file, { :multipart => true, :content_type => 'application/octet-stream'}) 
     end
   end
 end
